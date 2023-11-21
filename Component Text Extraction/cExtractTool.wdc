@@ -1,0 +1,113 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : cExtractTool
+ major_version : 28
+ minor_version : 0
+ type : 4
+ description : ""
+ subtype : 0
+class :
+ identifier : 0x1255942902647424
+ internal_properties : CAAAAAgAAAB2/vstTMCJbS/hlxjFxirSqKvCUuv8YxgpWyl7S3iA
+ code_elements :
+  type_code : 10
+  p_codes :
+   -
+     code : |1+
+      
+      //
+      // This class is used to extract the text from a file by using an external tool
+      //
+      cExtractTool is class
+      	inherits from cExtractor
+      	
+      	private
+      		_sTool     is string
+      		_sCommand  is string
+      		_sExtension is string
+      end
+      
+     type : 131072
+  procedures :
+   -
+     name : Constructeur
+     procedure_id : 1321124969557881892
+     type_code : 27
+     code : |1+
+      procedure Constructor(sExtension is string, sTool is string, sCommand is string)
+      
+      _sExtension = sExtension
+      _sTool = sTool
+      _sCommand = sCommand
+     type : 589824
+   -
+     name : Destructeur
+     procedure_id : 1321124969557947428
+     type_code : 28
+     code : |1+
+      procedure Destructor()
+     type : 655360
+   -
+     name : ExtractText
+     procedure_id : 1321124969558012964
+     type_code : 12
+     code : |1+
+      // Summary: Starts the specified tool
+      // Syntax:
+      //[ <Result> = ] ExtractText (<sPath> is string [, <sOutput>])
+      //
+      // Parameters:
+      //	sPath (ANSI string): Location of the file
+      //	sOutput (default value=""): Output file that contains the text
+      
+      // Return value:
+      // 	boolean: True if the extraction was successful, False otherwise
+      procedure virtual ExtractText(sPath is string, sOutput="")
+      
+      // Variables
+      sCall is string
+      bOK    is boolean
+      
+      // Replace
+      sCall = StringBuild(_sTool+" "+_sCommand,""""+sPath+"""",""""+sOutput+"""")
+      
+      // Start the external tool
+      bOK = ExeRun(sCall)
+      
+      if not (bOK)
+      	return False
+      else
+      	// The converter was started
+      	return True
+      end
+     type : 458752
+   -
+     name : getExtension
+     procedure_id : 1321124969558078500
+     type_code : 12
+     code : |1-
+      // Summary: Gets the document extension
+      // Syntax:
+      //[ <Result> = ] getExtension ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	string: Document extension
+      
+      procedure virtual getExtension()
+      
+      return _sExtension
+     type : 458752
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : CClasse1
+resources :
+ string_res :
+  identifier : 0x10f943f30005a8db
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ

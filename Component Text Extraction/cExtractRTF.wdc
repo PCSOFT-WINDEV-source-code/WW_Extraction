@@ -1,0 +1,109 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : cExtractRTF
+ major_version : 28
+ minor_version : 0
+ type : 4
+ description : ""
+ subtype : 0
+class :
+ identifier : 0x1aba31610010c29a
+ internal_properties : CAAAAAgAAAB2/vstTMCJbS/hlxjFxirSqKvCUuv8YxgpWyl7S3iA
+ code_elements :
+  type_code : 10
+  p_codes :
+   -
+     internal_properties : CAAAAAgAAABbHQKZmRP/1l/sj6r8h+h5m+0crCgNQ5P3Krs4+FVP5wFkFuDriNm9eMMDRFBeNW7/Sjqw0DR+sPJ5PFEMJNJwGc3wB6HA1LSY2naggpasdrf1xO+2r0KzJITR6CPVa5Bx0bNtLjhKQjSGp/w=
+     code : |1+
+      
+      constant
+      	EXTENSION = ".rtf"
+      end
+      
+      //
+      // Class used to extract the text from a RTF file
+      //
+      cExtractRTF is class
+      	inherits from cExtractor
+      end
+      
+     type : 131072
+  procedures :
+   -
+     name : Constructeur
+     procedure_id : 1925906083337061018
+     type_code : 27
+     code : |1+
+      procedure Constructor()
+      
+     type : 589824
+   -
+     name : Destructeur
+     procedure_id : 1925906083337126554
+     type_code : 28
+     code : |1+
+      procedure Destructor()
+      
+     type : 655360
+   -
+     name : ExtractText
+     internal_properties : CAAAAAgAAACGG8VVfLg/NxDutZ0al2kAQ5cPMWie8gMH/XeU06iXNE9laYvg3Lb/3LuRdwv76WccGj9fhs+8kAK7iy0w3wF9Vq954bKaN9FVB1v85E7W40TyZ8+mvbe1Ew8q1TzLOjnRjdryepLXytwfxyb/GFrGmS9z9obKjthjkHygIFjS+FmtrTP+PKSwxQqzbhQApv2W9HSn+uh9isTqybY4/H5SSfCQiqX1MNCooSzNwxmafYmZV4J1eBuk6Apl8QO5KiK5ZDYZDmLcWArnr5JefEnK
+     procedure_id : 1925906353920457078
+     type_code : 12
+     code : |1+
+      // Summary: Extracting the text from a RTF document
+      // Syntax:
+      //[ <Result> = ] ExtractText (<sPath> is string [, <sOutput>])
+      //
+      // Parameters:
+      //	sPath (string): Path of the file
+      //	sOutput: useful for cExtractTool only
+      // Return value:
+      // 	boolean: True if the extraction was successful, False otherwise
+      
+      procedure virtual ExtractText(sPath is string,sOutput="")
+      
+      // Variable
+      sText is string
+      
+      // Initialization
+      sText = fLoadText(sPath)
+      
+      _sText = RTFToText(sText)
+      
+      return True
+      
+      case exception:
+      	_sError = ErrorInfo(errFullDetails)
+      	return False
+     type : 458752
+   -
+     name : getExtension
+     procedure_id : 1925908509994345354
+     type_code : 12
+     code : |1+
+      // Summary: Gives the extension of a RTF document
+      // Syntax:
+      //[ <Result> = ] getExtension ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	string: Document extension 
+      
+      procedure virtual getExtension()
+      
+      return EXTENSION
+     type : 458752
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : CClasse1
+resources :
+ string_res :
+  identifier : 0x10f943f30017a919
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ

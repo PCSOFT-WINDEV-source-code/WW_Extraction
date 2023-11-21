@@ -1,0 +1,201 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : cExtractDOCX
+ major_version : 28
+ minor_version : 0
+ type : 4
+ description : ""
+ subtype : 0
+class :
+ identifier : 0x18bc0a24006c1e2f
+ internal_properties : CAAAAAgAAAB2/vstTMCJbS/hlxjFxirSqKvCUuv8YxgpWyl7S3iA
+ code_elements :
+  internal_properties : CAAAAAgAAAC9U9wq3PKSyNj5P0vZ5aCymzu0ilRBc4h6EWFp6gDXBd4q37VLaUN/cag9uTVDZy/D1qhIYs9VgJfMXUyy7M3E+S2C31Q49iAu02E81YWtl+G/UE3dt6+MC8WD2dee2dQ570dOowetW6P7NgoV3IdwK/5ZubiDFU8FRF3f90E3CQde+Sf3daiizskv+6eQ/yeqfNxoMU6n9DAn9Aw+gMt1fZfAqz9c7C9hMD/RrOROfQvs4gq5yxvI8jL3HlrcPpTj3XlPpMAR9TQUbD6mJHLx
+  type_code : 10
+  p_codes :
+   -
+     internal_properties : CAAAAAgAAAARIXAenFESlgeoVe/JGZ4gvskMA+FkYXi1esyBUQ9yzCvFxet8w0D8Skxqio1rudd7dOQ9gk0WS51sYBAfSCwo2nw6vk2sAcIf0C5zm40YvtyRJPR/JdLpg6ggdAkHzo4GCL1qIQMGSzMlksybaqguy3FBX3I72FQRig+WbqHOxXp0iuZHI0Eet1se5NjOPv0=
+     code : |1+
+      
+      constant
+      	EXTENSION        = ".docx"
+      	RELATION         = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"" Target="""
+      	RELATION_FILE = "_rels\.rels"
+      end
+      
+      // 
+      // Class used to retrieve text from a Microsoft Word document (.docx)
+      //
+      cExtractDOCX is class
+      	inherits from cExtractor
+      end
+      
+     type : 131072
+  procedures :
+   -
+     name : Constructeur
+     procedure_id : 1782310702274125359
+     type_code : 27
+     code : |1+
+      procedure Constructor()
+      
+     type : 589824
+   -
+     name : Destructeur
+     procedure_id : 1782310702274190895
+     type_code : 28
+     code : |1+
+      procedure Destructor()
+      
+     type : 655360
+   -
+     name : ExtractText
+     internal_properties : CAAAAAgAAAA/E/1vcbow+4L9Kym5P9m5IkCaAwLcwvjsN2upYF6kyOc5QeOJSlCUVPa1V6xubW1N1XbeQ/NIrwAl6jd06LoaODeeR5mhrXn/tMeFpswvntDdaFAd0hTPzOmmWpcQ1EstP1DRkWZbFX43+jN9X9odqQQzW0Q5OT6nWe7Cio2bC5Qq73qC2kC61D0e2H6niT3VaoPrk4YD6ci5miKR+cdlYat9ZtxpJKPqWw/FuvtGDDDM0t51vioSla7sXFy9Bt6iYhfKCcb6UoaYsxvR458ge++LYgQob38UVgBTMeRjh2c1jnyaGpb/MYqaF1W/c/Jao6AN23i3uytxvDNborI0x51U4RRljoYrQMq/h0kZI7kRdFes5XdoEYyp30vO23QZ7THE
+     procedure_id : 1782310702274256431
+     type_code : 12
+     code : |1-
+      // Summary: This procedure extracts and returns text from a Word document
+      // Syntaxe :
+      //[ <Résultat> = ] ExtractText (<sPath> est chaîne [, <sOutput>])
+      //
+      // Paramètres :
+      //	sPath (chaîne ANSI) : Path of the Word file
+      //	sOutput (valeur par défaut="") : useful for cExtractTool only
+      // Example:
+      // ExtractText("C:/study.docx")
+      // Automatically process exceptions:   run CASE EXCEPTION:
+      
+      // Traitement automatique des exceptions :   exécuter le bloc de code CAS EXCEPTION:
+      //
+      
+      // Return value:
+      // 	boolean: True if no problems were found, False otherwise
+      procedure virtual ExtractText(sPath is string,sOutput="")
+      
+      // Variables
+      nOpenArchive   is int
+      sText          is string
+      sTextPath    is string
+      sResult       is string
+      nStartPosition  is int
+      nEndPosition    is int
+      nEndTagBeginning is int
+      sArchiveName     is string
+      
+      // Initialization
+      sArchiveName = "DOCXArchive_"+Now()
+      
+      // Specify the file
+      if sPath <> "" then
+      	_sPath = sPath
+      end
+      
+      // Check if it is a Word file
+      if fExtractPath(_sPath,fExtension) <> EXTENSION then
+      	_sError = <§$0000§>
+      	return False
+      end
+      
+      // Unzip the file
+      nOpenArchive = zipOpen(sArchiveName, _sPath)
+      if nOpenArchive = 0 then
+      	// Extract the file in memory used to indicate the location of the text
+      	sText = zipExtractFile(sArchiveName, RELATION_FILE, zipInMemory)
+      else
+      	_sError = <§$0001§>+_sPath
+      	return False
+      end
+      
+      // Retrieve the location in the ZIP of the file containing the text
+      nStartPosition = Position(sText,RELATION)
+      if nStartPosition <> 0 then
+      	// Retrieve the path
+      	nStartPosition += Length(RELATION)
+      	nEndPosition = Position(sText,"""",nStartPosition) - 1
+      	sTextPath = sText[[nStartPosition to nEndPosition]]
+      	sTextPath = Replace(sTextPath,"/","\")
+      	
+      	// Extraction in memory of the document
+      	sText = zipExtractFile(sArchiveName, sTextPath, zipInMemory)
+      else
+      	_sError = <§$0002§>
+      	return False
+      end
+      
+      // Close the zip file
+      zipClose(sArchiveName)
+      
+      // Loop and extract the values found between the tags that indicate some text
+      nStartPosition = Position(sText,"<w:t")
+      while nStartPosition <> 0
+      	// Define the end of the start tag (its size may change)
+      	nEndTagBeginning = Position(sText,">",nStartPosition) 
+      	
+      	// Define the end of the text
+      	nEndPosition = Position(sText,"</w:t>",nStartPosition)
+      
+      	// Next tag
+      	nStartPosition = Position(sText,"<w:t",nStartPosition+1)
+      	
+      	// Retrieve the text as the start and end positions are identified
+      	sResult += sText[[nEndTagBeginning+1 to nEndPosition-1]]
+      	
+      	// Is a line skip required?
+      	if Position(sText,"</w:p>",nEndPosition) < nStartPosition then
+      		sResult += CR	
+      	end
+      end
+      
+      // Specify the extracted text
+      _sText = XMLToText(UTF8ToString(sResult))
+      
+      return True
+      
+      case exception:
+      	_sError = ErrorInfo(errFullDetails)
+      	return False
+     type : 458752
+   -
+     name : getExtension
+     internal_properties : CAAAAAgAAACrd6WhykHueYxhSwLjT/wUJumle0JJ4ZDZRGI7Un//FDq3M4v37nWy5J7FM2XzEi0Xlo6YD8x38SKai9WvoGWUfKSCpzky907zyOvDFXtAF6S1OgWc0pHKZfTUY1oqTnsdGApZxxnL2Jkygu45LiG8QaOGYHMpBIf9JLCxLER6l8pyg3y+isTF1ypfp8EuZ0rimaVQ
+     procedure_id : 1782315096024529369
+     type_code : 12
+     code : |1+
+      // Summary: Returns the extension of a Word document
+      // Syntax:
+      //[ <Result> = ] getExtension ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	string: document extension
+      
+      procedure virtual getExtension()
+      
+      return EXTENSION
+     type : 458752
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : CClasse1
+resources :
+ string_res :
+  identifier : 0x18bbb9ea0015bbcd
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+  strings :
+   -
+     text :
+      en-GB : This is not a Microsoft Word file
+     index : 0
+   -
+     text :
+      en-GB : "Unable to unzip the archive "
+     index : 1
+   -
+     text :
+      en-GB : Unable to determine the file containing the text in the Word document
+     index : 2
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ

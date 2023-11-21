@@ -1,0 +1,181 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : pExtraction
+ major_version : 28
+ minor_version : 0
+ type : 7
+ description : ""
+ subtype : 0
+procedure_set :
+ identifier : 0x18bbe475001aea87
+ internal_properties : CAAAAAgAAABGLu41kG7fjQV3iS4F72qmnKaNh5694reolNKIW0iw
+ code_elements :
+  internal_properties : CAAAAAgAAABYRb1fR/tdnL+cQRIe/7pscKqpRRNyAO1AaTjQub/azYUt+QNMi768O56wuG6oDiWnaYi6hurvOOInAktwE2gWJOuZt3M=
+  type_code : 31
+  p_codes :
+   -
+     code : |1+
+      
+      
+      private
+      // Global variables of the extraction component
+      gclPrincipalExtract is cExtractManager
+      
+      // Information message about the error
+      gsError is string
+      
+      // Error?
+      gbError is boolean = False
+     type : 720896
+  procedures :
+   -
+     name : Extract
+     procedure_id : 1782271712556914600
+     type_code : 15
+     code : |1+
+      // Summary: The procedure is used to extract the text found in the file whose path is passed in parameter
+      // Syntax:
+      //[ <Result> = ] Extract (<sPath> is string [, <sOutput>])
+      //
+      // Parameters:
+      //	sPath (ANSI string): Path of the file to process
+      //	sOutput (default value=""): Output path (used by the tools that save the extraction in another file)
+      // Example:
+      // EDT_Text = Extract("C:\study.docx")
+      //
+      // Return value:
+      // 	string: The returned value represents the extracted text when it is not saved in a separate file (case of tools)
+      procedure Extract(sPath is string, sOutput="")
+      
+      // Variable
+      sText is string
+      
+      // Initialization
+      sText = gclPrincipalExtract.Extract(sPath,sOutput)
+      
+      // Error?
+      if gclPrincipalExtract.getEncounteredError() then
+      	gbError = True
+      	gsError = gclPrincipalExtract.getErrorInformation()
+      	return ""
+      else
+      	return sText
+      end
+      
+     type : 458752
+   -
+     name : SpecifyTool
+     internal_properties : CAAAAAgAAAAv67f6fa90Y+dPqL32Nqbz/M9dyncwEp+rgbuhx0elYrL3DSLtZCtkYmoeK/EEYeTr/ynn/GX6D2C5/aZvtxcEzaGVHYw7VXsRCrabVdNaMesoWf9xyxy1ESawy9h4F1WzzfSrEg7jcvqs5e7Dc6DaUQD8/E7gBGB9IkJ7T7Cgow==
+     procedure_id : 1782274646021178710
+     type_code : 15
+     code : |1-
+      // Summary: Used to add an extraction tool external to the application
+      // Syntax:
+      //SpecifyTool (<sExtension> is string, <sTool> is string, <sCommand> is string)
+      //
+      // Parameters:
+      //	sExtension (ANSI string): Extension of the file processed by the external tool (.pdf, .doc, etc.)
+      //	sTool (ANSI string): Path of the tool (Ex: "C:/Program Files/MyTool/MyTool.exe")
+      //	sCommand (ANSI string): Command to pass in parameter when the tool is started, the input file must be noted %1 and the output file (if there is one ) %2
+      // Example:
+      // SpecifyTool(".pdf","C:\Program Files\xPDF\pdftotext.exe","-layout %1 %2")
+      //
+      // Return value:
+      procedure SpecifyTool(sExtension is string, sTool is string, sCommand is string)
+      
+      gclPrincipalExtract.SpecifyTool(sExtension,sTool,sCommand)
+     type : 458752
+   -
+     name : IsSupported
+     procedure_id : 1829080220356531565
+     type_code : 15
+     code : |1+
+      // Summary: This procedure is used to find out whether the file passed in parameter is supported by the component
+      // Syntax:
+      //[ <Result> = ] IsSupported (<sFile> is string)
+      //
+      // Parameters:
+      //	sFile (ANSI string): Location of the file
+      
+      // Return value:
+      // 	boolean: True if supported, False otherwise
+      procedure IsSupported(sFile is string)
+      
+      // Variable
+      sExtension is string
+      sListExt  is string
+      bFound    is boolean = False
+      
+      // Initialization
+      sExtension = fExtractPath(sFile,fExtension)
+      sListExt  = gclPrincipalExtract.getListType()
+      
+      // Extension supported?
+      for each string sExt of sListExt SEPAREE by CR
+      	if Upper(sExt) = Upper(sExtension) then
+      		bFound = True
+      	end
+      end
+      
+      return bFound
+      
+     type : 458752
+   -
+     name : EncounteredError
+     procedure_id : 1848330933841220422
+     type_code : 15
+     code : |1+
+      // Summary: Indicates whether an error occurred
+      // Syntax:
+      //[ <Result> = ] EncounteredError ()
+      //
+      // Parameters:
+      //	None
+      // Example:
+      // pExtraction.ErrorRaised()
+      //
+      // Return value:
+      // 	boolean: True if Error, False otherwise
+      procedure EncounteredError()
+      
+      bError is boolean = gbError
+      
+      // Reinitialize the global variable
+      gbError = False
+      
+      return bError
+     type : 458752
+   -
+     name : InformationError
+     procedure_id : 1850247026078697934
+     type_code : 15
+     code : |1+
+      // Summary: Returns an error message about the last error raised
+      // Syntax:
+      //[ <Result> = ] InformationError ()
+      //
+      // Parameters:
+      //	None
+      // Example:
+      // pExtraction.ErrorInformation()
+      //
+      // Return value:
+      // 	string: Error message
+      procedure InformationError()
+      
+      gbError = False
+      
+      return gsError
+     type : 458752
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : COL_Collection1
+resources :
+ string_res :
+  identifier : 0x10f943f30042a987
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ

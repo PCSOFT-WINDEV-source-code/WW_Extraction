@@ -1,0 +1,179 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : cExtractODT
+ major_version : 28
+ minor_version : 0
+ type : 4
+ description : ""
+ subtype : 0
+class :
+ identifier : 0x18bc0a1a0068f6d0
+ internal_properties : CAAAAAgAAAB2/vstTMCJbS/hlxjFxirSqKvCUuv8YxgpWyl7S3iA
+ code_elements :
+  internal_properties : CAAAAAgAAABhNn/rc6XwtdI261wZ0ClOZjRgZ1Lls9vrOiID0d8ngvshViqkCLaNcmSnFpoJS42YsuIq2Odnk4ObidfiLMQyOVDqc/Mp3mQjCw==
+  type_code : 10
+  p_codes :
+   -
+     internal_properties : CAAAAAgAAADpC4oPECl2oWQXKJD8266kOuXaCHBBywN1ty/ngBUlvfiqtzzBF1UF3x/jWT6wsbtLLjoXFMuR1FLt4YbP6r9UIKLneCDEUNcMIq1f4AKy7AH/MXPc9/bvKBy3KvDyqKhdoGgz1J/+JTlw3up5j/ZMNHsIWAxRKHqocPd6ed3Kl4Q3pLEkWmNdKpFm0/HUDg==
+     code : |1+
+      constant
+      	EXTENSION       = ".odt"
+      	DATA_FILE = "content.xml"	
+      end
+      
+      // 
+      // Class used to retrieve the text found in an Open Office document (.odt)
+      //
+      cExtractODT is class
+      	inherits from cExtractor
+      end
+      
+      
+     type : 131072
+  procedures :
+   -
+     name : Constructeur
+     procedure_id : 1782310659324245712
+     type_code : 27
+     code : |1+
+      
+      procedure Constructor()
+      
+     type : 589824
+   -
+     name : Destructeur
+     procedure_id : 1782310659324311248
+     type_code : 28
+     code : |1+
+      
+      procedure Destructor()
+      
+     type : 655360
+   -
+     name : ExtractText
+     internal_properties : CAAAAAgAAABDFtn//2Ses6VbDlNp/ioNaSf+eDUs4Sh9PFcZvA2+lMeFx7UPaeTBkTA+OflwL6XBWH1ZfnFc6iTOwcGfey8O+qb9oydPcWeDWLUvnhl0zfayA1d0sDt6DHi6fo6vnM20CSuicxUBov1O5L9Kqc8cbGALXjMQ41fINRHbG02/Anlnw5FkCgujiS698SQoqg1KkqKLQKJz4uBTBFICUtyswzlqwjgWX6VMX/k946UU7YVdUZcAdj7F1SdS6cUbtZSvWmvdWgE3JkDnnf9F+4JTXXyRRVNKAs8R983xKdulqP0cREcPkfnDaFOIv+J1MMM=
+     procedure_id : 1782310659324376784
+     type_code : 12
+     code : |1-
+      // Summary: Extracts the text from an Open Office document
+      // Syntax:
+      //[ <Result> = ] ExtractText (<sPath> is string [, <sOutput>])
+      //
+      // Parameters:
+      //	sPath (ANSI string): Path of the file
+      //	sOutput (default value=""): useful for cExtractTool only
+      // Example: ExtractText("D:/file.odt")
+      // Automatically process exceptions:   run CASE EXCEPTION:
+      
+      // Automatic exception processing:   run the block of code CASE EXCEPTION:
+      //
+      
+      // Return value:
+      // 	boolean: True if everything was ok, False otherwise
+      procedure virtual ExtractText(sPath is string,sOutput="")
+      
+      // Variables
+      nOpenArchive   is int
+      sText          is string
+      sLine          is string
+      sResult       is string
+      nStartPosition  is int
+      nEndTagBeginning is int
+      nEndPosition    is int
+      sArchiveName     is string
+      
+      // Initialization
+      sArchiveName = "ODTArchive_"+Now()
+      
+      // Specify the file
+      if sPath <> "" then
+      	_sPath = sPath
+      end
+      
+      // Is is an Open Office file?
+      if fExtractPath(_sPath,fExtension) <> EXTENSION then
+      	_sError = <§$0000§>
+      	return False
+      end
+      
+      // Unzip the file
+      nOpenArchive = zipOpen(sArchiveName, _sPath)
+      if nOpenArchive = 0 then
+      	// Extract a file to its initial location
+      	sText = zipExtractFile(sArchiveName, DATA_FILE, zipInMemory)
+      else
+      	_sError = <§$0001§>+_sPath
+      	return False
+      end
+      
+      // Close the zip file
+      zipClose(sArchiveName)
+      
+      // Loop and extract the values found between the tags that indicate some text
+      nStartPosition = Position(sText,"<text:p")
+      while nStartPosition <> 0
+      	// Define the end of the start tag (its size may change)
+      	nEndTagBeginning = Position(sText,">",nStartPosition) 
+      	
+      	// Define the end of the text
+      	nEndPosition = Position(sText,"</text:p>",nStartPosition)
+      	
+      	// Retrieve the text as the start and end positions are identified
+      	sLine = sText[[nEndTagBeginning+1 to nEndPosition-1]]
+      	if not (sLine [= "<text") then
+      		sResult += CR
+      		sResult += sLine
+      	end
+      	
+      	// Next tag
+      	nStartPosition = Position(sText,"<text:p",nStartPosition+1)
+      end
+      
+      // Specify the extracted text
+      _sText = XMLToText(UTF8ToString(sResult))
+      
+      return True
+      
+      case exception:
+      	_sError = ErrorInfo(errFullDetails)
+      	return False
+     type : 458752
+   -
+     name : getExtension
+     procedure_id : 1782315074548835156
+     type_code : 12
+     code : |1-
+      // Summary: Returns the extension of an Open Office document
+      // Syntax:
+      //[ <Result> = ] getExtension ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	string: Document extension
+      
+      procedure virtual getExtension()
+      
+      return EXTENSION
+     type : 458752
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : CClasse1
+resources :
+ string_res :
+  identifier : 0x18bbb9cf000e5023
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+  strings :
+   -
+     text :
+      en-GB : This file is not an Open Office file
+     index : 0
+   -
+     text :
+      en-GB : "Unable to unzip the archive "
+     index : 1
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ

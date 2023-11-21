@@ -1,0 +1,131 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : cExtractor
+ major_version : 28
+ minor_version : 0
+ type : 4
+ description : ""
+ subtype : 0
+class :
+ identifier : 0x125594290246734a
+ internal_properties : CAAAAAgAAAB2/vstTMCJbS/hlxjFxirSqKvCUuv8YxgpWyl7S3iA
+ code_elements :
+  type_code : 10
+  p_codes :
+   -
+     code : |1-
+      
+      //
+      // Base class from which all the extractors inherit
+      //
+      cExtractor is class
+      	protected
+      		_sPath is string = ""
+      		_sText  is string = ""
+      		_sError is string = ""
+      end
+       
+       
+     type : 131072
+  procedures :
+   -
+     name : Constructeur
+     procedure_id : 1321124969555915594
+     type_code : 27
+     code : |1+
+      
+      procedure Constructor( )
+     type : 589824
+   -
+     name : Destructeur
+     procedure_id : 1321124969555981130
+     type_code : 28
+     code : |1+
+      
+      procedure Destructor()
+      
+     type : 655360
+   -
+     name : ExtractText
+     procedure_id : 1321124969556046666
+     type_code : 12
+     code : |1-
+      // Summary: Virtual method overloaded by each extractor
+      // Syntax:
+      //[ <Result> = ] ExtractText (<sPath> is string [, <sOutput>])
+      //
+      // Parameters:
+      //	sPath (ANSI string): Path of the document to extract
+      //	sOutput (default value=""): Use only for cExtractTool
+      
+      // Return value:
+      // 	boolean: True if everything was ok, False otherwise
+      procedure virtual ExtractText(sPath is string <useful>, sOutput <useful> = "" )
+      
+      return False
+     type : 458752
+   -
+     name : getText
+     procedure_id : 1321124969556112202
+     type_code : 12
+     code : |1-
+      // Summary: Returns the text extracted from the file
+      // Syntax:
+      //[ <Result> = ] getText ()
+      //
+      // Parameters:
+      //	None
+      
+      // Return value:
+      // 	string: Text extracted from the document
+      function getText( )
+      
+      return _sText
+     type : 458752
+   -
+     name : getLastError
+     procedure_id : 1321124969556177738
+     type_code : 12
+     code : |1-
+      // Summary: Returns a string explaining the last error raised
+      // Syntax:
+      //[ <Result> = ] getLastError ()
+      //
+      // Parameters:
+      //	None
+      
+      // Return value:
+      function getLastError( )
+      
+      return _sError
+     type : 458752
+   -
+     name : getExtension
+     procedure_id : 1321124969556243274
+     type_code : 12
+     code : |1+
+      // Summary: Returns the extension of the file used to manage the class
+      // Syntax:
+      //[ <Result> = ] getExtension ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	string: File extension
+      
+      function virtual getExtension ( )
+      
+      return ""
+     type : 458752
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : CClasse1
+resources :
+ string_res :
+  identifier : 0x10f943f30029a958
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ

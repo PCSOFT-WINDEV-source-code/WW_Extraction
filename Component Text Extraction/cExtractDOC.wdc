@@ -1,0 +1,159 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : cExtractDOC
+ major_version : 28
+ minor_version : 0
+ type : 4
+ description : ""
+ subtype : 0
+class :
+ identifier : 0x19ad58ab00143816
+ internal_properties : CAAAAAgAAAB2/vstTMCJbS/hlxjFxirSqKvCUuv8YxgpWyl7S3iA
+ code_elements :
+  internal_properties : CAAAAAgAAAB866eP4Ets4TTLMsshqEz3fUrTsqRNJyKDnG3Fh2I4G2j/gv1+ctrBQKEsIohDsPZ15m8aTDv/o82gJIt8op0fGoBvBA==
+  type_code : 10
+  p_codes :
+   -
+     internal_properties : CAAAAAgAAAD1tu6ka6YsGQdWS5Spuaru0W1vLqid/T8/t85TV1QXII2w/T+mLmrbk5t+WHJDsw2NNmrKiMEtLIhrMLJ3a/IA8bkrEz9wydWkXKh2Y5XdCgUkUlF2z5de3ICWKNFJpzcwkiCgyPFkS/5JkT1ta0FQpoDDnCiwC4iBlTn47J9qxvtQUuWgrAoV5fS2ZKiLrpQOOPdOcs+0tChc2Ou11lbKyoa0beCTdTMZAo+KcpGimXsu/RWhJ230lWPMlJHjzXLQ8jAXnoMnInV+t/FAdfbMxikjxT06kHvQYjXKnPPxcxQU2V5Z1DXp+MidytCNn/XYF7F2w2GH5dA87vfZ6GyLSxN/eXa2vZZ5zK9k8yMVQUFzRG7K
+     code : |1+
+      constant
+      	EXTENSION        = ".doc"
+      end
+      
+      // 
+      // Class used to retrieve the text found in an Office Word document (by automation since 97)
+      //
+      cExtractDOC is class
+      	inherits from cExtractor
+      	
+      	private
+      		_oWordAutomation is object OLE dynamic
+      end
+      
+     type : 131072
+  procedures :
+   -
+     name : Constructeur
+     procedure_id : 1850232513383184406
+     type_code : 27
+     code : |1+
+      procedure Constructor()
+      
+     type : 589824
+   -
+     name : Destructeur
+     procedure_id : 1850232513383249942
+     type_code : 28
+     code : |1-
+      procedure Destructor()
+      
+      delete _oWordAutomation
+     type : 655360
+   -
+     name : getExtension
+     procedure_id : 1850232831211231401
+     type_code : 12
+     code : |1+
+      // Summary: Gets the document extension
+      // Syntax:
+      //[ <Result> = ] getExtension ()
+      //
+      // Parameters:
+      //	None
+      // Return value:
+      // 	ANSI string: Document extension
+      
+      procedure virtual getExtension()
+      
+      return EXTENSION
+     type : 458752
+   -
+     name : ExtractText
+     internal_properties : CAAAAAgAAAD3RUfH9Msy8g+fG973NIwx4RXwPO1FxITCZiAUoFQO4mh5sq/znkUUV50Jj3ceV22+iYtKNtM2GqTS5Ek/1N/scZ+IXxPklPriBwuXrb7XF7IaqynAUVjGk/1LTaduRO9h8GMaoy6IK60rAB5znfEIW+bT97rOmEsO5aof3tYz3NJOIgfA9WasrmKSE/Da7ExjO/JSQQcsRvB/iKeBDXPMJGvBDt3BWfToFXzIQxsoEWySScUIUljNe7Oyn/Oh6+GlGaNwVPhkfnZMqa7JHfcBjOAWZXu+IAZ5d15EZDCWsAgIVDK+tsyVjH0rEU5j8wtum/zXelUeDQUwxqPDF5E3WcOklP1wK7cS/bXFyfBXKgIX5zOH8hV0tEV2O5ZJujRoUrEKnihTiSn42ofb9BA+K21EUv4x5RU/
+     procedure_id : 1850232985830155952
+     type_code : 12
+     code : |1-
+      // Summary: Extracts the text of a document
+      // Syntax:
+      //[ <Result> = ] ExtractText (<sPath> is string [, <sOutput>])
+      //
+      // Parameters:
+      //	sPath (ANSI string): Path of the document to extract
+      //	sOutput (default value=""): Use only for cExtractTool
+      // Return value:
+      // 	boolean:  True if no problems were found, False otherwise
+      
+      procedure virtual ExtractText(sPath is string <useful>,sOutput <useful>="")
+      
+      
+      <if CibleExécution=ApplicationWindows or CibleExécution=ServiceWindows>
+      	// Variable
+      	oWordDocument is object OLE dynamic
+      	
+      	// Is an automation object already allocated?
+      	if _oWordAutomation = Null then
+      		_oWordAutomation = GetActiveObject("Word.Application")
+      		if _oWordAutomation = Null then
+      			// No Word was already opened, allocate one 
+      			_oWordAutomation = new object OLE "Word.Application"
+      		end
+      	end
+      	
+      	// Word is invisible
+      	_oWordAutomation>>Visible = False
+      	
+      	// Open the file with this Word
+      	oWordDocument = _oWordAutomation>>Documents>>Open(sPath)
+      	
+      	// Retrieve the text
+      	_sText = oWordDocument>>Range>>Text
+      	
+      	// Close the file
+      	oWordDocument>>Close()
+      	
+      	//# Extract using first method
+      	//for my $paragraph (in $doc->Paragraphs)
+      	//	{
+      	//	$index++;
+      	//	# Remove trailing ^M (the paragraph marker) from Range.
+      	//	my($text) = substr($paragraph->Range->Text, 0, -1);
+      	//	print "Paragraph: $index. Text: <$text>\n\n";
+      	//	}
+      	//	
+      	//	print '-' x 50, "\n";
+      	//	
+      	//	# Extract using second method
+      	//	my $paraCount = $doc->Paragraphs->Count;
+      	//	
+      	//	for ($index = 1 ; $index <= $doc->Paragraphs->Count ; ++$index)
+      	//		{
+      	//		my($text) = $doc->Paragraphs($index);
+      	//		print "Paragraph: $index. Text: <", $text->Range->Text, ">\n\n";
+      	//		}
+      	//		
+      	//		print '=' x 50, "\n";
+      	//		$doc->{Saved} = 1;
+      	//		$doc->Close;
+      	
+      <end>
+      
+      
+      
+      return True
+      
+      case exception:
+      	_sError = ErrorInfo(errFullDetails)
+      	return False
+     type : 458752
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : CClasse1
+resources :
+ string_res :
+  identifier : 0x10f943f3001da939
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ

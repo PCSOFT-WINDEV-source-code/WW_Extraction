@@ -1,0 +1,260 @@
+#To edit and compare internal_properties, use WINDEV integrated tools.
+#Internal properties refer to the properties of controls in windows, reports, etc.
+info :
+ name : cExtractManager
+ major_version : 28
+ minor_version : 0
+ type : 4
+ description : ""
+ subtype : 0
+class :
+ identifier : 0x18bbe71a00333cfc
+ internal_properties : CAAAAAgAAAB2/vstTMCJbS/hlxjFxirSqKvCUuv8YxgpWyl7S3iA
+ code_elements :
+  type_code : 10
+  p_codes :
+   -
+     code : |1-
+       
+      //
+      // Manager of extractor
+      // This class is used to centralize the management of the extractors
+      //
+      cExtractManager is class
+      	private
+      		_listExtractor is ASSOCIATIVE ARRAY of cExtractor dynamic
+      		_bError         is boolean = False
+      		_sErrorMsg      is string
+      end
+       
+       
+     type : 131072
+  procedures :
+   -
+     name : Constructeur
+     procedure_id : 1782272176413752587
+     type_code : 27
+     code : |1+
+      procedure Constructor( )
+      
+      // Add the supported extractor objects in an array
+      _listExtractor[cExtractDOCX.EXTENSION] = new cExtractDOCX
+      _listExtractor[cExtractODT.EXTENSION] = new cExtractODT
+      _listExtractor[cExtractHTML.hTM_EXTENSION] = new cExtractHTML
+      _listExtractor[cExtractHTML.hTML_EXTENSION] = new cExtractHTML
+      _listExtractor[cExtractPDF.EXTENSION] = new cExtractPDF
+      _listExtractor[cExtractRTF.EXTENSION] = new cExtractRTF
+      
+      
+      <if CibleExécution=ApplicationWindows or CibleExécution=WebserviceWindows or CibleExécution=ServiceWindows>
+      	
+      	_listExtractor[cExtractDOC.EXTENSION] = new cExtractDOC
+      	_listExtractor[cExtractXLS.EXTENSION] = new cExtractXLS
+      	
+      <end>
+      
+      
+     type : 589824
+   -
+     name : Destructeur
+     procedure_id : 1782272176413818123
+     type_code : 28
+     code : |1+
+      procedure Destructor()
+      
+     type : 655360
+   -
+     name : Extract
+     internal_properties : CAAAAAgAAADI2gym7zx8OHbf7EScjLbDBOj9nMfNEczZzD5TGwUwXOjJzd4mhWtPN/kT3NkWZHYl3FS5d9Cx+9pUK26JPIyeQ4EFnSCJ5M0lSkzICjnBt2mbEjIZUMQgQ1Th1h2EqZd0ho7UQJkcCO3UYQk89oLOBpk+8S7P71W7hNmu1TJHJ59+7fUZ3NFrVdYq0qx9xRH1uXhV7Q==
+     procedure_id : 1782272352507583670
+     type_code : 12
+     code : |1+
+      // Summary: Extracts and returns the text found in a file
+      // Syntax:
+      //[ <Result> = ] Extract (<sPath> is string [, <sOutput>])
+      //
+      // Parameters:
+      //	sPath (ANSI string): Location of the file
+      //	sOutput (default value=""): Use for cExtractTool
+      // Example:
+      // Extract("page.html")
+      //
+      // Return value:
+      // 	ANSI string: Extracted text   
+      function Extract( sPath is string , sOutput = "" )
+      
+      // Variable
+      sExtension    is string
+      sArchiveName   is string
+      
+      // Initialization
+      sExtension = fExtractPath(sPath,fExtension)
+      sArchiveName = "MainArchive_"+Now()
+      
+      // If it's a ZIP file, special case, list the files that can be managed and return all the texts
+      if sExtension = ".zip" then
+      	// Variable
+      	nOpenArchive is int
+      	sListFile is string
+      	sFile      is string
+      	sText        is string
+      	
+      	// The files found in the zip must be listed
+      	
+      	// Open the archive
+      	nOpenArchive = zipOpen(sArchiveName,sPath)
+      	
+      	if nOpenArchive = 0 then	
+      		// Return the list of files found in the archive
+      		sListFile = zipListFile(sArchiveName)
+      		
+      		// Extract the file and read its content if it can be managed
+      		for each string sFile of sListFile SEPAREE by CR
+      			sExtension = fExtractPath(sFile,fExtension)	
+      			if not(_listExtractor[sExtension]..Empty) then
+      				// Extract
+      				zipExtractFile(sArchiveName,sFile,zipNone)
+      				
+      				// Retrieve the text
+      				if _listExtractor[sExtension].ExtractText(sFile,sOutput) then				
+      					sText += _listExtractor[sExtension].getText()
+      				end
+      			end
+      		end
+      		
+      		// Close the archive
+      		zipClose(sArchiveName)
+      	end
+      	
+      	return sText
+      	
+      // Otherwise, test as usual
+      else if _listExtractor[sExtension]..Empty then
+      	_bError = True
+      	_sErrorMsg = <§$0001§>
+      	return ""
+      else
+      	if _listExtractor[sExtension].ExtractText(sPath,sOutput) then
+      		return _listExtractor[sExtension].getText() 
+      	else	
+      		_bError = True
+      		_sErrorMsg = _listExtractor[sExtension].getLastError()
+      		return ""
+      	end
+      end
+     type : 458752
+   -
+     name : SpecifyTool
+     procedure_id : 1782272580141690165
+     type_code : 12
+     code : |1+
+      // Summary: Used to specify an external tool that will be call to extract some files
+      // Syntax:
+      //SpecifyTool (<sExtension> is string, <sTool> is string, <sCommand> is string)
+      //
+      // Parameters:
+      //	sExtension (ANSI string): Extensions of the files that will be extracted with the tool
+      //	sTool (ANSI string): Location of the tool
+      //	sCommand (ANSI string): Command line of the tool
+      
+      // Return value:
+      procedure SpecifyTool( sExtension is string , sTool is string , sCommand is string )
+      
+      // Variable
+      pclExtractTool is cExtractTool dynamic
+      
+      // Initialization, add quotes at the beginning and at the end if space characters are found in the path of the tool
+      pclExtractTool = new cExtractTool(sExtension, """"+sTool+"""",sCommand)
+      
+      // Insert a new external extractor that may overwrite an internal extractor
+      _listExtractor[sExtension] = pclExtractTool
+      
+     type : 458752
+   -
+     name : getListType
+     procedure_id : 1782315293593135881
+     type_code : 12
+     code : |1-
+      // Summary: Returns the list of supported extensions
+      // Syntax:
+      //[ <Result> = ] getListType ()
+      //
+      // Parameters:
+      //	None
+      
+      // Return value:
+      // 	string: List of supported extensions
+      function getListType( )
+      
+      // Variable
+      sList      is string
+      cExtractTmp is cExtractor dynamic
+      
+      // Browse the list of classes
+      FOR EACH ELEMENT cExtractTmp of _listExtractor
+      	sList += cExtractTmp.getExtension() + CR
+      end
+      
+      return sList
+     type : 458752
+   -
+     name : getErrorInformation
+     procedure_id : 1850251591631438093
+     type_code : 12
+     code : |1+
+      // Summary: returns the error message
+      // Syntax:
+      //[ <Result> = ] getErrorInformation ()
+      //
+      // Parameters:
+      //	None
+      
+      // Return value:
+      // 	string: Error details
+      procedure getErrorInformation()
+      
+      return _sErrorMsg
+     type : 458752
+   -
+     name : getEncounteredError
+     procedure_id : 1850251664645964349
+     type_code : 12
+     code : |1+
+      // Summary: Was there an error
+      // Syntax:
+      //[ <Result> = ] getEncounteredError ()
+      //
+      // Parameters:
+      //	None
+      
+      // Return value:
+      // 	boolean: True if an error has occurred
+      procedure getEncounteredError()
+      
+      // Variable
+      bError is boolean = _bError
+      
+      _bError = False
+      
+      return bError
+     type : 458752
+  procedure_templates : []
+  property_templates : []
+ code_parameters :
+  internal_properties : CAAAAAgAAACVGQgYbalU7DKC3oH4ItDrjtcTHXXV/EuH8q0IbhyQlw==
+  original_name : CClasse1
+resources :
+ string_res :
+  identifier : 0x18bbe70c0030060d
+  internal_properties : CAAAAAgAAACm76HWfKGWp33VjXInA4cRlqArlgTTA862QGt72W2ld5Y=
+  strings :
+   -
+     text :
+      en-GB : "Error: Type of file not supported"
+     index : 0
+   -
+     text :
+      en-GB : "Error: Type of file not supported"
+     index : 1
+custom_note :
+ internal_properties : CAAAAAgAAABtB9HWVzrXO2+4NDRVK0vmzaNKrCKqH1DBX30lMmGZ
